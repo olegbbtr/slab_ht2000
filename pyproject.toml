@@ -1,0 +1,12 @@
+[project]
+name = "slab-ht2000"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "hidapi>=0.15.0",
+    "paho-mqtt>=2.1.0",
+    "pyusb>=1.3.1",
+    "pyyaml>=6.0.3",
+]

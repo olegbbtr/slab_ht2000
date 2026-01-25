@@ -1,20 +1,33 @@
-FROM gcc:12 AS build
+FROM python:3.13-slim
+
+# Install system dependencies for HID and USB access
+# libusb-1.0-0 for general USB
+# libhidapi-hidraw0 / libhidapi-libusb0 for HIDAPI support
+RUN apt-get update && apt-get install -y \
+    libusb-1.0-0 \
+    libhidapi-hidraw0 \
+    libhidapi-libusb0 \
+    udev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for dependency management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 WORKDIR /app
 
-ADD ht2000.c /app/ht2000.c
+# Copy dependency definitions
+COPY pyproject.toml uv.lock ./
 
-RUN gcc -o ht2000 ht2000.c
+# Install dependencies using uv
+# --frozen: use uv.lock exactly
+# --no-dev: do not install dev dependencies (if any)
+RUN uv sync --frozen --no-dev
 
-FROM python:3.12-slim
+# Copy the source code
+COPY src ./src
 
-WORKDIR /app
+# Set the environment path to use the virtual environment created by uv
+ENV PATH="/app/.venv/bin:$PATH"
 
-COPY --from=build /app/ht2000 /app/ht2000
-
-ADD homeassistant/requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
-
-ADD homeassistant/ha.py /app/ha.py
-
-CMD ["python", "/app/ha.py"]
+# Run the application
+CMD ["python", "src/main.py"]
