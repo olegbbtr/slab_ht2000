@@ -56,7 +56,7 @@ class MQTTClient:
             },
             "state_topic": f"{self.topic_prefix}/state",
             "components": {
-                "ht2000_temperature": {
+                "temperature": {
                     "platform": "sensor",
                     "device_class": "temperature",
                     "name": "Temperature",
@@ -65,7 +65,7 @@ class MQTTClient:
                     "value_template": "{{ value_json.temperature }}",
                     "state_class": "measurement"
                 },
-                "ht2000_humidity": {
+                "humidity": {
                     "platform": "sensor",
                     "device_class": "humidity",
                     "name": "Humidity",
@@ -74,7 +74,7 @@ class MQTTClient:
                     "value_template": "{{ value_json.humidity }}",
                     "state_class": "measurement"
                 },
-                "ht2000_co2": {
+                "co2": {
                     "platform": "sensor",
                     "device_class": "carbon_dioxide",
                     "name": "CO2",
@@ -90,7 +90,6 @@ class MQTTClient:
         
         try:
             json_payload = json.dumps(payload, indent=4)
-            print(f"Topic: {topic}\nPayload:\n{json_payload}")
             self.client.publish(topic, json_payload, retain=True)
             logger.info(f"Announced device and components to {topic}")
         except Exception as e:
