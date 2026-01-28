@@ -1,2 +1,4 @@
 ht2000
 homeassistant/private.env
+__pycache__
+config.yaml

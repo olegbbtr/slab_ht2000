@@ -4,11 +4,12 @@ services:
     image: slab-ht2000:latest
     container_name: slab_ht2000
     restart: unless-stopped
-    
-    
+
+    privileged: true
+
     volumes:
       - /dev/bus/usb:/dev/bus/usb
       - ./config.yaml:/app/config.yaml:ro
-    
+
     environment:
       - PYTHONUNBUFFERED=1
