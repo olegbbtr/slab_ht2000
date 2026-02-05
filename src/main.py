@@ -28,6 +28,7 @@ def main():
     # MQTT Setup
     mqtt_client = MQTTClient(mqtt_config)
     mqtt_client.start()
+    time.sleep(2)
     mqtt_client.announce()
     
     sensor = HT2000()

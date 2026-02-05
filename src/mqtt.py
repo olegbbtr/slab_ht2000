@@ -26,24 +26,15 @@ class MQTTClient:
         self.client.on_connect = self._on_connect
 
     def _on_connect(self, client: mqtt.Client, userdata: Any, flags: Any, rc: int, properties: Any = None) -> None:
-        if rc == 0:
-            logger.info("Connected to MQTT broker")
-        else:
-            logger.error(f"Failed to connect to MQTT broker, return code {rc}")
+        if rc != 0:
+            raise Exception(f"Failed to connect to MQTT broker, return code {rc}")
+        logger.info("Connected to MQTT broker")
 
     def start(self) -> None:
-        try:
-            self.client.connect(self.broker, self.port, 60)
-            self.client.loop_start()
-        except Exception as e:
-            logger.error(f"Could not connect to MQTT broker: {e}")
+        self.client.connect(self.broker, self.port, 60)
+        self.client.loop_start()
 
     def announce(self) -> None:
-        """Announce the device and its components to Home Assistant."""
-        # Allow some time for connection
-        import time
-        time.sleep(2)
-        
         payload = {
             "device": {
                 "identifiers": ["ht2000"],
@@ -87,25 +78,15 @@ class MQTTClient:
         }
         
         topic = f"homeassistant/device/{self.topic_prefix}/config"
-        
-        try:
-            json_payload = json.dumps(payload, indent=4)
-            self.client.publish(topic, json_payload, retain=True)
-            logger.info(f"Announced device and components to {topic}")
-        except Exception as e:
-            logger.error(f"Failed to announce device: {e}")
+        json_payload = json.dumps(payload, indent=4)
+        self.client.publish(topic, json_payload, retain=True)
+        logger.info(f"Announced device and components to {topic}")
 
     def publish_state(self, payload: dict[str, Any]) -> None:
-        try:
-            mqtt_payload = json.dumps(payload)
-            self.client.publish(f"{self.topic_prefix}/state", mqtt_payload)
-        except Exception as e:
-            logger.error(f"Failed to publish to MQTT: {e}")
+        mqtt_payload = json.dumps(payload)
+        self.client.publish(f"{self.topic_prefix}/state", mqtt_payload)
 
     def stop(self) -> None:
-        try:
-            self.client.loop_stop()
-            self.client.disconnect()
-        except Exception:
-            pass
+        self.client.loop_stop()
+        self.client.disconnect()
 

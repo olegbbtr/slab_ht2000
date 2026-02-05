@@ -31,6 +31,7 @@ class HT2000:
 
         if len(buf) < 30:
             raise ValueError(f"Report 0x05 too short: {len(buf)} bytes")
+    
         seconds = (buf[1] << 24) | (buf[2] << 16) | (buf[3] << 8) | buf[4]
         seconds -= 2004450700
         
